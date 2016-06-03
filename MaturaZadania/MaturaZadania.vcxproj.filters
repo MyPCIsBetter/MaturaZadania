@@ -16,6 +16,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="Dane\puchar.txt" />
+    <Text Include="Dane\zawodnicy.txt" />
+    <Text Include="Dane\zawody.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
