@@ -33,41 +33,60 @@ vector<string> splitString(string text, char delimiter) {
 	return result;
 }
 
-class Competition {
+class Score {
 public:
 	string idOfPlayer;
 	string position;
-	Competition(string, string);
+	string points;
+	string idOfCompetition;
+	Score(string, string, string, string);
 };
 
-Competition::Competition(string playerId, string hisPosition) {
+Score::Score(string playerId, string hisPosition, string numberOfPoints, string competitionid) {
 	idOfPlayer = playerId;
 	position = hisPosition;
+	points = numberOfPoints;
+	idOfCompetition = competitionid;
 }
 
 class Player {
 public:
 	string id;
+	string name;
 	string country;
-	Player(string, string);
+	Player(string, string, string);
 };
 
-Player::Player(string playerId, string hisCountry) {
+Player::Player(string playerId, string hisCountry, string hisName) {
 	id = playerId;
 	country = hisCountry;
+	name = hisName;
+}
+
+class Competition {
+public:
+	string id;
+	string name_of_place;
+	Competition(string, string);
+};
+
+Competition::Competition(string idOfComp, string place) {
+	id = idOfComp;
+	name_of_place = place;
 }
 
 int main()
 {
 	map<string, int> countries; //panstwo, ilosc zwyciêzców
-	
+	vector<int> idsOfPlayerWithMoreThan450Points;
 
 	string pathToDirectory = _getcwd(NULL, 0);
 
 	string pathToPucharFile = pathToDirectory + "\\Dane\\puchar.txt";
 	string pathToZawodnicyFile = pathToDirectory + "\\Dane\\zawodnicy.txt";
+	string pathToZawodyFile = pathToDirectory + "\\Dane\\zawody.txt";
 
-	vector<Competition> competitions;
+	vector<Score> Scores;
 
 	ifstream filePuchar(pathToPucharFile);
 	if (!filePuchar) {
@@ -85,7 +104,13 @@ int main()
 
 			vector<string> oneLinePucharData = splitString(line, ';');
 
-			competitions.push_back(Competition(oneLinePucharData[2], oneLinePucharData[1]));
+			Score c = Score(oneLinePucharData[2], oneLinePucharData[1], oneLinePucharData[5], oneLinePucharData[6]);
+
+			Scores.push_back(c);
+
+			if (atoi(oneLinePucharData[5].c_str()) > 450) {
+				idsOfPlayerWithMoreThan450Points.push_back(atoi(c.idOfPlayer.c_str()));
+			}
 		}
 	}
 
@@ -103,7 +128,7 @@ int main()
 
 			vector<string> oneLineZawodnicyData = splitString(playersLine, ';');
 
-			players.push_back(Player(oneLineZawodnicyData[0], oneLineZawodnicyData[2]));
+			players.push_back(Player(oneLineZawodnicyData[0], oneLineZawodnicyData[2], oneLineZawodnicyData[1]));
 		}
 	}
 	else {
@@ -111,24 +136,69 @@ int main()
 	}
 
 
-	for (int i = 0; i < competitions.size(); i++) {
-		Competition currentCompetition = competitions[i];
+	vector<Competition> competitions;
 
-		if (currentCompetition.position == "1") {
+	ifstream fileZawody(pathToZawodyFile);
+	if (fileZawody) {
+		string compLine;
+		bool omitFirstLine2 = true;
+		while (getline(fileZawody, compLine)) {
+			if (omitFirstLine2) {
+				omitFirstLine2 = false;
+				continue;
+			}
+
+			vector<string> oneLineZawodyData = splitString(compLine, ';');
+
+			competitions.push_back(Competition(oneLineZawodyData[0], oneLineZawodyData[2]));
+		}
+	}
+	else {
+		cout << "Problem z odczytem zawodnikow";
+	}
+
+
+	for (int i = 0; i < Scores.size(); i++) {
+		Score currentScore = Scores[i];
+
+		if (currentScore.position == "1") {
 			for (int p = 0; p < players.size(); p++) {
 				Player currentPlayer = players[p];
 
-				if (currentCompetition.idOfPlayer == currentPlayer.id) {
+				if (currentScore.idOfPlayer == currentPlayer.id) {
 					countries[currentPlayer.country]++;
 				}
 			}
 		}
 	}
 
+	cout << "\nWyniki poszczegolnych panstw: \n";
 	for (map<string, int>::iterator iterator = countries.begin(); iterator != countries.end(); iterator++) {
 		cout << iterator->first << ":" << iterator->second << "\n";
 	}
 
+	cout << "\nZawodnicy z wieksza nota niz 450 \n";
+	for (int x = 0; x < idsOfPlayerWithMoreThan450Points.size(); x++) {
+		for (int p = 0; p < players.size(); p++) {
+			if (idsOfPlayerWithMoreThan450Points[x] == atoi(players[p].id.c_str())) {
+				cout << players[p].name << "\n";
+			}
+		}
+	}
+
+	cout << "\nIlosc zwyciestw Malysza w Zakopanem: ";
+	int idMalysza = 136;
+	int iloscZwyciestw = 0;
+	for (int i = 0; i < Scores.size(); i++) {
+		if (Scores[i].position == "1") {
+			for (int j = 0; j < competitions.size(); j++) {
+				if (competitions[j].name_of_place == "Zakopane" && competitions[j].id == Scores[i].idOfCompetition) {
+					iloscZwyciestw++;
+				}
+			}
+		}
+	}
+	cout << iloscZwyciestw << "\n";
 
 	system("pause");
 	return 0;
