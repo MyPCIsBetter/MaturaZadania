@@ -39,14 +39,18 @@ public:
 	string position;
 	string points;
 	string idOfCompetition;
-	Score(string, string, string, string);
+	string firstJump;
+	string secondJump;
+	Score(string, string, string, string, string, string);
 };
 
-Score::Score(string playerId, string hisPosition, string numberOfPoints, string competitionid) {
+Score::Score(string playerId, string hisPosition, string numberOfPoints, string competitionid, string fJump, string secJump) {
 	idOfPlayer = playerId;
 	position = hisPosition;
 	points = numberOfPoints;
 	idOfCompetition = competitionid;
+	firstJump = fJump;
+	secondJump = secJump;
 }
 
 class Player {
@@ -67,12 +71,14 @@ class Competition {
 public:
 	string id;
 	string name_of_place;
-	Competition(string, string);
+	string season;
+	Competition(string, string, string);
 };
 
-Competition::Competition(string idOfComp, string place) {
+Competition::Competition(string idOfComp, string place, string seasonYears) {
 	id = idOfComp;
 	name_of_place = place;
+	season = seasonYears;
 }
 
 int main()
@@ -104,7 +110,7 @@ int main()
 
 			vector<string> oneLinePucharData = splitString(line, ';');
 
-			Score c = Score(oneLinePucharData[2], oneLinePucharData[1], oneLinePucharData[5], oneLinePucharData[6]);
+			Score c = Score(oneLinePucharData[2], oneLinePucharData[1], oneLinePucharData[5], oneLinePucharData[6], oneLinePucharData[3], oneLinePucharData[4]);
 
 			Scores.push_back(c);
 
@@ -150,7 +156,7 @@ int main()
 
 			vector<string> oneLineZawodyData = splitString(compLine, ';');
 
-			competitions.push_back(Competition(oneLineZawodyData[0], oneLineZawodyData[2]));
+			competitions.push_back(Competition(oneLineZawodyData[0], oneLineZawodyData[2], oneLineZawodyData[3]));
 		}
 	}
 	else {
@@ -189,6 +195,8 @@ int main()
 	cout << "\nIlosc zwyciestw Malysza w Zakopanem: ";
 	int idMalysza = 136;
 	int iloscZwyciestw = 0;
+	map<string, int[2]> analizaSezonow;
+
 	for (int i = 0; i < Scores.size(); i++) {
 		if (Scores[i].position == "1") {
 			for (int j = 0; j < competitions.size(); j++) {
@@ -197,6 +205,13 @@ int main()
 				}
 			}
 		}
+
+		/*for (int j = 0; j < competitions.size(); j++) {
+			if (Scores[i].idOfCompetition == competitions[j].id) {
+				analizaSezonow[competitions[j].season][0] = (analizaSezonow[competitions[j].season][0] + atoi(Scores[i].firstJump.c_str())) / 2;
+				analizaSezonow[competitions[j].season][1] = (analizaSezonow[competitions[j].season][1] + atoi(Scores[i].secondJump.c_str())) / 2;
+			}
+		}*/
 	}
 	cout << iloscZwyciestw << "\n";
 
