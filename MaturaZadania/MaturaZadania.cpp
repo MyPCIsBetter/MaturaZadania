@@ -26,70 +26,103 @@ vector<string> splitString(string text, char delimiter) {
 
 	}
 
-	if (wordToAdd != ""){
+	if (wordToAdd != "") {
 		result.push_back(wordToAdd);
 	}
 
 	return result;
 }
 
+class Competition {
+public:
+	string idOfPlayer;
+	string position;
+	Competition(string, string);
+};
+
+Competition::Competition(string playerId, string hisPosition) {
+	idOfPlayer = playerId;
+	position = hisPosition;
+}
+
+class Player {
+public:
+	string id;
+	string country;
+	Player(string, string);
+};
+
+Player::Player(string playerId, string hisCountry) {
+	id = playerId;
+	country = hisCountry;
+}
+
 int main()
 {
 	map<string, int> countries; //panstwo, ilosc zwyciêzców
+	
 
 	string pathToDirectory = _getcwd(NULL, 0);
 
 	string pathToPucharFile = pathToDirectory + "\\Dane\\puchar.txt";
 	string pathToZawodnicyFile = pathToDirectory + "\\Dane\\zawodnicy.txt";
 
+	vector<Competition> competitions;
+
 	ifstream filePuchar(pathToPucharFile);
 	if (!filePuchar) {
 		cout << "Problem z odczytaniem pliku";
 	}
 	else {
-		cout << "Ok" << "\n";
 		string line;
 		bool omitFirstLine = true;
 
 		while (getline(filePuchar, line)) {
-			if (omitFirstLine) { 
+			if (omitFirstLine) {
 				omitFirstLine = false;
-				continue; 
+				continue;
 			}
 
 			vector<string> oneLinePucharData = splitString(line, ';');
 
-			string position = oneLinePucharData[1];
-			string winnerId = oneLinePucharData[2];
+			competitions.push_back(Competition(oneLinePucharData[2], oneLinePucharData[1]));
+		}
+	}
 
-			if (position == "1") {
-				ifstream fileZawodnicy(pathToZawodnicyFile);
-				if (fileZawodnicy) {
-					string playersLine;
-					bool omitFirstLine2 = true;
-					while (getline(fileZawodnicy, playersLine)) {
-						if (omitFirstLine2) {
-							omitFirstLine2 = false;
-							continue;
-						}
+	vector<Player> players;
 
-						vector<string> oneLineZawodnicyData = splitString(playersLine, ';');
+	ifstream fileZawodnicy(pathToZawodnicyFile);
+	if (fileZawodnicy) {
+		string playersLine;
+		bool omitFirstLine2 = true;
+		while (getline(fileZawodnicy, playersLine)) {
+			if (omitFirstLine2) {
+				omitFirstLine2 = false;
+				continue;
+			}
 
-						string playerId = oneLineZawodnicyData[0];
-						string panstwo = oneLineZawodnicyData[2];
+			vector<string> oneLineZawodnicyData = splitString(playersLine, ';');
 
-						if (winnerId == playerId) {
-							countries[panstwo] ++;
-							break;
-						}
-					}
-				}
-				else {
-					cout << "Problem z odczytem zawodnikow";
+			players.push_back(Player(oneLineZawodnicyData[0], oneLineZawodnicyData[2]));
+		}
+	}
+	else {
+		cout << "Problem z odczytem zawodnikow";
+	}
+
+
+	for (int i = 0; i < competitions.size(); i++) {
+		Competition currentCompetition = competitions[i];
+
+		if (currentCompetition.position == "1") {
+			for (int p = 0; p < players.size(); p++) {
+				Player currentPlayer = players[p];
+
+				if (currentCompetition.idOfPlayer == currentPlayer.id) {
+					countries[currentPlayer.country]++;
 				}
 			}
 		}
-		filePuchar.close();
 	}
 
 	for (map<string, int>::iterator iterator = countries.begin(); iterator != countries.end(); iterator++) {
