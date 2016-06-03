@@ -47,7 +47,7 @@ int main()
 		cout << "Problem z odczytaniem pliku";
 	}
 	else {
-		cout << "Ok";
+		cout << "Ok" << "\n";
 		string line;
 		bool omitFirstLine = true;
 
@@ -92,6 +92,12 @@ int main()
 		filePuchar.close();
 	}
 
+	for (map<string, int>::iterator iterator = countries.begin(); iterator != countries.end(); iterator++) {
+		cout << iterator->first << ":" << iterator->second << "\n";
+	}
+
+
+	system("pause");
 	return 0;
 }
 
